@@ -34,7 +34,7 @@ app.get("/", async (req, res) => {
 
         console.log(responseData);
 
-        res.send(responseData); // Send the predictions back to the client.
+        res.json({response: responseData}); // Send the predictions back to the client.
     } catch (error) {
         console.error(error);
 
