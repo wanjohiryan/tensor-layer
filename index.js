@@ -19,6 +19,7 @@ app.get("/test", (req, res) => {
 });
 
 app.get("/image", async (req, res) => {
+
     try {
         const model = await tf.loadGraphModel(
             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
@@ -36,65 +37,62 @@ app.get("/image", async (req, res) => {
     }
 });
 
-// app.get('/:id', async (req, res) => {
-//     const imageUrl = parseInt(req.params.id)
-
-//     try{
-//         const model = await tf.loadGraphModel(
-//             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
-//             { fromTFHub: true });
-
-//         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-
-//         const predictions = await tensor(response, model);
-
-//         res.send(predictions);
-//     }   catch (error) {
-//         console.error(error);
-//         res.send(error);
-//     }
-
-// });
-
-app.get('/', async (req, res) => {
-    // get buffer from req body
-    console.log("request body is",req.body);
-
-    console.log("request params is",req.query);
+app.get('/image_url', async (req, res) => {
+    console.log("request params is", req.query);
 
     const imageUrl = decodeURIComponent(req.query.url);
-    
+
     try {
         const model = await tf.loadGraphModel(
             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
             { fromTFHub: true });
 
-            // const buf = Buffer.from(image, 'base64')
+        if (typeof imageUrl === 'string') {
+            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-            if(typeof req.body.image !== "undefined"){
-                const image = req.body.image//.replace(/^data:image\/\w+;base64,/, '');
-
-                console.log("image base64 is", image);
-
-                const img = Buffer.from(image, 'base64');
-
-                const predictions = await tensor(img, model);
-
-                res.send(predictions);
-            }
-
-            if(typeof imageUrl !== "undefined"){
-                const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-
-                const predictions = await tensor(response.data, model);
-    
-                res.send(predictions);
-            }
+            const predictions = await tensor(response, model);
             
+            res.status(200).send(predictions);
+
+        } else{
+            throw new Error('Invalid image url');
+        }
 
     } catch (error) {
         console.error(error);
-        res.send(error);
+        res.status(500).send(error);
+    }
+
+});
+
+app.get('/body_image', async (req, res) => {
+    // get buffer from req body
+    console.log("request body is", req.body);
+
+    try {
+        const model = await tf.loadGraphModel(
+            'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
+            { fromTFHub: true });
+
+        // const buf = Buffer.from(image, 'base64')
+
+        if (typeof req.body.image !== "undefined") {
+            const image = req.body.image//.replace(/^data:image\/\w+;base64,/, '');
+
+            console.log("image base64 is", image);
+
+            const img = Buffer.from(image, 'base64');
+
+            const predictions = await tensor(img, model);
+
+            res.status(200).send(predictions);
+        } else {
+            throw new Error('Invalid image in body');
+        }
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
     }
 
 })
