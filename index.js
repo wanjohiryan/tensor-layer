@@ -60,7 +60,7 @@ app.get('/', async (req, res) => {
     // get buffer from req body
     console.log("request body is",req.body);
 
-    console.log("request params is",req.params);
+    console.log("request params is",req.query);
 
     const imageUrl = parseInt(req.query.url);
     
@@ -69,11 +69,11 @@ app.get('/', async (req, res) => {
             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
             { fromTFHub: true });
 
-
-            const image = req.body.image.replace(/^data:image\/\w+;base64,/, '');
             // const buf = Buffer.from(image, 'base64')
 
-            if(typeof image !== "undefined"){
+            if(typeof req.body.image !== "undefined"){
+                const image = req.body.image.replace(/^data:image\/\w+;base64,/, '');
+
                 const predictions = await tensor(image, model);
 
                 res.send(predictions);
