@@ -76,7 +76,9 @@ app.get('/', async (req, res) => {
 
                 console.log("image base64 is", image);
 
-                const predictions = await tensor(image, model);
+                const img = Buffer.from(image, 'base64');
+
+                const predictions = await tensor(img, model);
 
                 res.send(predictions);
             }
