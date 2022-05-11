@@ -24,7 +24,7 @@ app.get("/", async (req, res) => {
 
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-        const imageTensor = tf.decodeImage(response.data, 3);
+        const imageTensor = tf.node.decodeImage(response.data, 3);
 
         const processedImage = preprocess(imageTensor);
 
