@@ -1,3 +1,5 @@
+// forgive the naming of my variables :)
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -28,13 +30,15 @@ app.get("/", async (req, res) => {
 
         const processedImage = preprocess(imageTensor);
 
-        const predictions = await model.predict(processedImage).data();
+        const predictions = await model.predict(processedImage);
+
+        const pred = await  predictions.data();
 
         const responseData = JSON.stringify(predictions);
 
         console.log(responseData);
 
-        res.json({response: responseData}); // Send the predictions back to the client.
+        res.send(pred); // Send the predictions back to the client.
     } catch (error) {
         console.error(error);
 
