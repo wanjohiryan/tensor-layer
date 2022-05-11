@@ -58,34 +58,35 @@ app.get("/image", async (req, res) => {
 
 app.get('/', async (req, res) => {
     // get buffer from req body
-    console.log(req.body);
-    
-    const imageUrl = parseInt(req.query.url)
+    console.log("request body is",req.body);
+
+    console.log("request params is",req.params);
+
+    const imageUrl = parseInt(req.query.url);
     
     try {
         const model = await tf.loadGraphModel(
             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
             { fromTFHub: true });
 
-        if (req.body.image) {
 
             const image = req.body.image.replace(/^data:image\/\w+;base64,/, '');
             // const buf = Buffer.from(image, 'base64')
 
+            if(typeof image !== "undefined"){
+                const predictions = await tensor(image, model);
 
-            const predictions = await tensor(image, model);
+                res.send(predictions);
+            }
 
-            res.send(predictions);
-        } else if(imageUrl) {
-            const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+            if(typeof imageUrl !== "undefined"){
+                const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-            const predictions = await tensor(response.data, model);
-
-            res.send(predictions);
-        }else{
-            res.send("No image in body or imageUrl provided");
-        }
-
+                const predictions = await tensor(response.data, model);
+    
+                res.send(predictions);
+            }
+            
 
     } catch (error) {
         console.error(error);
