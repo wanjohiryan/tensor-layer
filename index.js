@@ -28,7 +28,7 @@ app.get("/", async (req, res) => {
 
         const processedImage = preprocess(imageTensor);
 
-        const predictions = await model.predict(processedImage).print();
+        const predictions = await model.predict(processedImage).data();
 
         const responseData = JSON.stringify(predictions);
 
