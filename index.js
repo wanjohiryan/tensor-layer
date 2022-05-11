@@ -62,7 +62,7 @@ app.get('/', async (req, res) => {
 
     console.log("request params is",req.query);
 
-    const imageUrl = parseInt(req.query.url);
+    const imageUrl = decodeURIComponent(req.query.url);
     
     try {
         const model = await tf.loadGraphModel(
