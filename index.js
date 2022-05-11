@@ -50,8 +50,10 @@ app.get('/image_url', async (req, res) => {
         if (typeof imageUrl === 'string') {
             const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-            const predictions = await tensor(response, model);
-            
+            // const img = Buffer.from(response.data);
+
+            const predictions = await tensor(response.data, model);
+
             res.status(200).send(predictions);
 
         } else{
@@ -79,8 +81,6 @@ app.get('/body_image', async (req, res) => {
         if (typeof req.body.image !== "undefined") {
             const image = req.body.image//.replace(/^data:image\/\w+;base64,/, '');
 
-            console.log("image base64 is", image);
-
             const img = Buffer.from(image, 'base64');
 
             const predictions = await tensor(img, model);
@@ -95,6 +95,10 @@ app.get('/body_image', async (req, res) => {
         res.status(500).send(error);
     }
 
+});
+
+app.get("/",(req, res)=>{
+    res.send("Hello World 🕵🏽‍♀️🕵🏽‍♀️😎😎");
 })
 
 // gets image buffer
