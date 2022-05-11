@@ -58,4 +58,9 @@ const preprocess = (imageTensor) => {
     const crop = tf.image.cropAndResize(
         tf.expandDims(imageTensor), squareCrop, [0], [224, 224]);
     return crop.div(255);
-}
+};
+
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+});
