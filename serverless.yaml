@@ -1,0 +1,23 @@
+service: tensor-flow-layer
+
+frameworkVersion: "2"
+
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+
+layers:
+  tensor-meme-layer:
+    name: tensor-js-layer
+    path: layer
+
+
+# resources:
+#   Outputs:
+#     QwantifyLayerExport:
+#         Value: !GetAtt qwantify-meme-layer.Arn
+#           # Ref: qwantify-meme-layer
+#         Export:
+#           Name: QwantifyLambdaLayer
