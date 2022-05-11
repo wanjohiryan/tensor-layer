@@ -18,7 +18,7 @@ app.get("/test", (req, res) => {
     res.send("Hello World 🕵🏽‍♀️🕵🏽‍♀️😎😎");
 });
 
-app.get("/", async (req, res) => {
+app.get("/image", async (req, res) => {
     try {
         const model = await tf.loadGraphModel(
             'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
@@ -26,25 +26,74 @@ app.get("/", async (req, res) => {
 
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
 
-        const imageTensor = tf.node.decodeImage(response.data, 3);
+        const predictions = await tensor(response.data, model);
 
-        const processedImage = preprocess(imageTensor);
-
-        const predictions = await model.predict(processedImage);
-
-        const pred = await  predictions.data();
-
-        const responseData = JSON.stringify(predictions);
-
-        console.log(responseData);
-
-        res.send(pred); // Send the predictions back to the client.
+        res.send(predictions); // Send the predictions back to the client.
     } catch (error) {
         console.error(error);
 
         res.send(error);
     }
 });
+
+app.get('/:id', async (req, res) => {
+    const imageUrl = parseInt(req.params.id)
+
+    try{
+        const model = await tf.loadGraphModel(
+            'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
+            { fromTFHub: true });
+    
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+
+        const predictions = await tensor(response, model);
+    
+        res.send(predictions);
+    }   catch (error) {
+        console.error(error);
+        res.send(error);
+    }
+   
+});
+
+app.get('/',async (req, res) => {
+    // get buffer from req body
+    console.log(req.body)
+
+    try{
+    const image = req.body.image.replace(/^data:image\/\w+;base64,/, '');
+    // const buf = Buffer.from(image, 'base64')
+    const model = await tf.loadGraphModel(
+        'https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_large_100_224/feature_vector/5/default/1',
+        { fromTFHub: true });
+
+    const predictions = await tensor(image, model);
+
+    res.send(predictions);
+
+    } catch (error) {
+        console.error(error);
+        res.send(error);
+    }
+    
+})
+
+// gets image buffer
+const tensor = async (image, model) => {
+    const imageTensor = tf.node.decodeImage(image, 3);
+
+    const processedImage = preprocess(imageTensor);
+
+    const predictions = await model.predict(processedImage);
+
+    const pred = await predictions.data();
+
+    const responseData = JSON.stringify({ image, ...predictions });
+
+    console.log(responseData);
+
+    return pred;
+}
 
 
 const preprocess = (imageTensor) => {
@@ -67,6 +116,7 @@ const preprocess = (imageTensor) => {
 };
 
 const port = process.env.PORT || 8080;
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
