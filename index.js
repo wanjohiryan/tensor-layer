@@ -72,8 +72,10 @@ app.get('/', async (req, res) => {
             // const buf = Buffer.from(image, 'base64')
 
             if(typeof req.body.image !== "undefined"){
-                const image = req.body.image.replace(/^data:image\/\w+;base64,/, '');
+                const image = (JSON.parse(req.body.image))//.replace(/^data:image\/\w+;base64,/, '');
 
+                console.log("image base64 is", image);
+                
                 const predictions = await tensor(image, model);
 
                 res.send(predictions);
@@ -105,7 +107,7 @@ const tensor = async (image, model) => {
 
     const pred = await predictions.data();
 
-    const responseData = JSON.stringify({ image, ...predictions });
+    const responseData = JSON.stringify({ ...predictions });
 
     console.log(responseData);
 
