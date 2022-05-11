@@ -30,9 +30,11 @@ app.get("/", async (req, res) => {
 
         const predictions = await model.predict(processedImage).print();
 
-        console.log(JSON.stringify(predictions));
+        const responseData = JSON.stringify(predictions);
 
-        res.send(predictions); // Send the predictions back to the client.
+        console.log(responseData);
+
+        res.send(responseData); // Send the predictions back to the client.
     } catch (error) {
         console.error(error);
 
